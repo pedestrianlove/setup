@@ -1,0 +1,95 @@
+---
+- name: Development Environment Setup
+  hosts: localhost
+  become: false
+  vars:
+    the_user: "{{ ansible_user_id }}"
+    base_packages:
+      - git
+      - fish
+      - vim
+      - neovim
+      - tmux
+      - ripgrep
+      - fzf
+
+  tasks:
+    - name: Install base packages
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ base_packages }}"
+      ignore_errors: true
+
+    # - name: Change shells for the current user
+    #   become: true
+    #   ansible.builtin.user:
+    #     name: "{{ the_user }}"
+    #     shell: /bin/fish
+
+    - name: Checkout the latest neovim config
+      ansible.builtin.git:
+        repo: "https://github.com/pedestrianlove/kickstart.nvim.git"
+        dest: "~/.config/nvim"
+
+    - name: Install tree-sitters
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - tree-sitter
+        - tree-sitter-cli
+      when: ansible_distribution == 'Archlinux'
+    - name: Install tree-sitters
+      become: true
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - libtree-sitter0
+        - libtree-sitter-dev
+      when: ansible_distribution == 'Ubuntu'
+
+
+    - name: Setup tmux config for terminal
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/dotfiles/tmux.conf"
+        dest: "~/.tmux.conf"
+    - name: Setup tmux config for terminal
+      ansible.builtin.git:
+        repo: "https://github.com/tmux-plugins/tpm"
+        dest: "~/.tmux/plugins/tpm"
+    - name: Setup tmux config for terminal
+      ansible.builtin.shell: ~/.tmux/plugins/tpm/scripts/install_plugins.sh
+
+    - name: Setup fonts for terminal
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/.fonts"
+        state: directory
+    - name: Setup fonts for terminal
+      ansible.builtin.unarchive:
+        src: https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+        dest: "{{ lookup('env', 'HOME') }}/.fonts/"
+        remote_src: true
+
+    - name: Setup fzf tmux-sessionizer
+      ansible.builtin.file:
+        path: ~/Work
+        state: directory
+    - name: Setup fzf tmux-sessionizer
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/dotfiles/tmux-sessionizer"
+        dest: "~/Work/tmux-sessionizer"
+    - name: Setup fzf tmux-sessionizer
+      ansible.builtin.file:
+        dest: "~/Work/tmux-sessionizer"
+        mode: a+x
+
+    - name: Setup fish config file
+      ansible.builtin.shell: fish
+    - name: Setup fish config file
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/dotfiles/fish.conf"
+        dest: "~/.config/fish/config.fish"
