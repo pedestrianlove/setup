@@ -36,7 +36,9 @@
         track_submodules: true
 
     - name: Setup the dotfiles.
-      ansible.builtin.command: stow ~/dotfiles
+      ansible.builtin.command: 
+        chdir: ~/dotfiles
+        cmd: stow .
 
     - name: Install tree-sitters
       become: true
