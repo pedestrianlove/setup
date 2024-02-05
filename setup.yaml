@@ -2,23 +2,22 @@
 - name: Development Environment Setup
   hosts: localhost
   become: false
-  vars:
+  # vars:
     # the_user: "{{ ansible_user_id }}"
-    base_packages:
-      - git
-      - stow
-      - fish
-      - vim
-      - neovim
-      - tmux
-      - ripgrep
-      - fzf
 
   tasks:
     - name: Install base packages
       become: true
       ansible.builtin.package:
-        name: "{{ item }}"
+        name:
+          - git
+          - stow
+          - fish
+          - vim
+          - neovim
+          - tmux
+          - ripgrep
+          - fzf
         state: present
       loop: "{{ base_packages }}"
       ignore_errors: true
@@ -43,18 +42,47 @@
     - name: Install tree-sitters
       become: true
       ansible.builtin.package:
-        name: "{{ item }}"
+        name:
+          - tree-sitter
+          - tree-sitter-cli
         state: present
-      loop:
-        - tree-sitter
-        - tree-sitter-cli
       when: ansible_distribution == 'Archlinux'
     - name: Install tree-sitters
       become: true
       ansible.builtin.package:
-        name: "{{ item }}"
+        name:
+          - libtree-sitter0
+          - libtree-sitter-dev
         state: present
-      loop:
-        - libtree-sitter0
-        - libtree-sitter-dev
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Setup build dependency for neovim.
+      become: true
+      ansible.builtin.package:
+        name:
+          - ninja-build
+          - gettext
+          - cmake
+          - unzip
+          - curl
+        state: present
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Checkout latest neovim source.
+      ansible.builtin.git:
+        repo: "https://github.com/neovim/neovim.git"
+        dest: "~/neovim"
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Build neovim from source
+      ansible.builtin.command:
+        chdir: ~/neovim
+        cmd: git checkout stable && make -j4 CMAKE_BUILD_TYPE=Release
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Install neovim.
+      become: true
+      ansible.builtin.command:
+        chdir: ~/neovim
+        cmd: make install
       when: ansible_distribution == 'Ubuntu'
