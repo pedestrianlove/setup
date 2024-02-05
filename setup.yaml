@@ -7,6 +7,7 @@
 
   tasks:
     - name: Install base packages
+      become: true
       ansible.builtin.package:
         name:
           - git
@@ -38,21 +39,26 @@
         cmd: stow --adopt .
 
     - name: Install tree-sitters
+      become: true
       ansible.builtin.package:
         name:
           - tree-sitter
           - tree-sitter-cli
         state: present
+      ignore_errors: true
       when: ansible_distribution == 'Archlinux'
     - name: Install tree-sitters
+      become: true
       ansible.builtin.package:
         name:
           - libtree-sitter0
           - libtree-sitter-dev
         state: present
+      ignore_errors: true
       when: ansible_distribution == 'Ubuntu'
 
     - name: Setup build dependency for neovim.
+      become: true
       ansible.builtin.package:
         name:
           - ninja-build
@@ -61,6 +67,7 @@
           - unzip
           - curl
         state: present
+      ignore_errors: true
       when: ansible_distribution == 'Ubuntu'
 
     - name: Checkout latest neovim source.
