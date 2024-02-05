@@ -38,7 +38,7 @@
     - name: Setup the dotfiles.
       ansible.builtin.command: 
         chdir: ~/dotfiles
-        cmd: stow .
+        cmd: stow --adopt .
 
     - name: Install tree-sitters
       become: true
