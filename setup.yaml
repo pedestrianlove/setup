@@ -79,7 +79,13 @@
     - name: Build neovim from source
       ansible.builtin.command:
         chdir: ~/neovim
-        cmd: git checkout stable && make -j4 CMAKE_BUILD_TYPE=Release
+        cmd: git checkout stable
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Make from source.
+      ansible.builtin.command:
+        chdir: ~/neovim
+        cmd: make CMAKE_BUILD_TYPE=Release
       when: ansible_distribution == 'Ubuntu'
 
     - name: Install neovim.
