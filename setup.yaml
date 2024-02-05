@@ -33,6 +33,7 @@
       ansible.builtin.git:
         repo: "https://github.com/pedestrianlove/dotfiles.git"
         dest: "~/dotfiles"
+        track_submodules: true
 
     - name: Setup the dotfiles.
       ansible.builtin.command: stow ~/dotfiles
