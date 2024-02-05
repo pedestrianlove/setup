@@ -7,7 +7,6 @@
 
   tasks:
     - name: Install base packages
-      become: true
       ansible.builtin.package:
         name:
           - git
@@ -39,7 +38,6 @@
         cmd: stow --adopt .
 
     - name: Install tree-sitters
-      become: true
       ansible.builtin.package:
         name:
           - tree-sitter
@@ -47,7 +45,6 @@
         state: present
       when: ansible_distribution == 'Archlinux'
     - name: Install tree-sitters
-      become: true
       ansible.builtin.package:
         name:
           - libtree-sitter0
@@ -56,7 +53,6 @@
       when: ansible_distribution == 'Ubuntu'
 
     - name: Setup build dependency for neovim.
-      become: true
       ansible.builtin.package:
         name:
           - ninja-build
