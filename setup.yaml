@@ -19,7 +19,6 @@
           - ripgrep
           - fzf
         state: present
-      loop: "{{ base_packages }}"
       ignore_errors: true
 
     # - name: Change shells for the current user
