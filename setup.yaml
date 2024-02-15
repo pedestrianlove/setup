@@ -94,3 +94,20 @@
         chdir: ~/neovim
         cmd: make install
       when: ansible_distribution == 'Ubuntu'
+
+    # Setup Hyprland if on Arch Linux
+    - name: Setup Window Manager if on Hyprland
+      become: true
+      ansible.builtin.package:
+        name:
+          - hyprland
+          - hyprpaper
+          - fuzzel
+          - copyq
+          - dunst
+          - alacritty
+          - firefox
+          - playerctl
+        state: present
+      ignore_errors: true
+      when: ansible_distribution == 'Archlinux'
