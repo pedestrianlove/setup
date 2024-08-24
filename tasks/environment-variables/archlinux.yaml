@@ -1,0 +1,6 @@
+- name: Setup environment variables.
+  become: true
+  ansible.builtin.command:
+    chdir: ~/dotfiles
+    cmd: cp Manual/environment /etc/environment
+  when: ansible_distribution == 'Archlinux'

@@ -1,0 +1,9 @@
+- name: Install tree-sitters
+  become: true
+  ansible.builtin.package:
+    name:
+      - tree-sitter
+      - tree-sitter-cli
+    state: present
+  ignore_errors: true
+  when: ansible_distribution == 'Archlinux'

@@ -1,0 +1,38 @@
+- name: Setup build dependency for neovim.
+  become: true
+  ansible.builtin.package:
+    name:
+      - ninja-build
+      - gettext
+      - cmake
+      - unzip
+      - curl
+    state: present
+  ignore_errors: true
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Checkout latest neovim source.
+  ansible.builtin.git:
+    repo: "https://github.com/neovim/neovim.git"
+    dest: "~/neovim"
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Build neovim from source
+  ansible.builtin.command:
+    chdir: ~/neovim
+    cmd: git checkout stable
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Make from source.
+  ansible.builtin.command:
+    chdir: ~/neovim
+    cmd: make CMAKE_BUILD_TYPE=Release
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Install neovim.
+  become: true
+  ansible.builtin.command:
+    chdir: "{{ ansible_env.HOME }}/neovim"
+    cmd: make install
+  when: ansible_distribution == 'Ubuntu'
+

@@ -2,121 +2,23 @@
 - name: Development Environment Setup
   hosts: localhost
   become: false
-  # vars:
-    # the_user: "{{ ansible_user_id }}"
 
   tasks:
-    - name: Install base packages
-      become: true
-      ansible.builtin.package:
-        name:
-          - git
-          - stow
-          - fish
-          - vim
-          - neovim
-          - tmux
-          - ripgrep
-          - fzf
-        state: present
-      ignore_errors: true
 
-    # - name: Change shells for the current user
-    #   become: true
-    #   ansible.builtin.user:
-    #     name: "{{ the_user }}"
-    #     shell: /bin/fish
+    - include_tasks: "{{item}}"
+      loop: "{{ lookup('ansible.builtin.fileglob', 'tasks/base-setup/*.yaml', wantlist=True) }}"
 
-    - name: Checkout the latest dotfiles and symlink them.
-      ansible.builtin.git:
-        repo: "https://github.com/pedestrianlove/dotfiles.git"
-        dest: "~/dotfiles"
-        track_submodules: true
+    - include_tasks: "{{item}}"
+      loop: "{{ lookup('ansible.builtin.fileglob', 'tasks/dotfiles/*.yaml', wantlist=True) }}"
 
-    - name: Setup the dotfiles.
-      ansible.builtin.command: 
-        chdir: ~/dotfiles
-        cmd: stow --adopt .
+    - include_tasks: "{{item}}"
+      loop: "{{ lookup('ansible.builtin.fileglob', 'tasks/tree-sitter/*.yaml', wantlist=True) }}"
 
-    - name: Install tree-sitters
-      become: true
-      ansible.builtin.package:
-        name:
-          - tree-sitter
-          - tree-sitter-cli
-        state: present
-      ignore_errors: true
-      when: ansible_distribution == 'Archlinux'
-    - name: Install tree-sitters
-      become: true
-      ansible.builtin.package:
-        name:
-          - libtree-sitter0
-          - libtree-sitter-dev
-        state: present
-      ignore_errors: true
-      when: ansible_distribution == 'Ubuntu'
+    - include_tasks: "{{item}}"
+      loop: "{{ lookup('ansible.builtin.fileglob', 'tasks/neovim/*.yaml', wantlist=True) }}"
 
-    - name: Setup build dependency for neovim.
-      become: true
-      ansible.builtin.package:
-        name:
-          - ninja-build
-          - gettext
-          - cmake
-          - unzip
-          - curl
-        state: present
-      ignore_errors: true
-      when: ansible_distribution == 'Ubuntu'
+    - include_tasks: "{{item}}"
+      loop: "{{ lookup('ansible.builtin.fileglob', 'tasks/window-manager/*.yaml', wantlist=True) }}"
 
-    - name: Checkout latest neovim source.
-      ansible.builtin.git:
-        repo: "https://github.com/neovim/neovim.git"
-        dest: "~/neovim"
-      when: ansible_distribution == 'Ubuntu'
-
-    - name: Build neovim from source
-      ansible.builtin.command:
-        chdir: ~/neovim
-        cmd: git checkout stable
-      when: ansible_distribution == 'Ubuntu'
-
-    - name: Make from source.
-      ansible.builtin.command:
-        chdir: ~/neovim
-        cmd: make CMAKE_BUILD_TYPE=Release
-      when: ansible_distribution == 'Ubuntu'
-
-    - name: Install neovim.
-      become: true
-      ansible.builtin.command:
-        chdir: ~/neovim
-        cmd: make install
-      when: ansible_distribution == 'Ubuntu'
-
-    # Setup Hyprland if on Arch Linux
-    - name: Setup Window Manager if on Hyprland
-      become: true
-      ansible.builtin.package:
-        name:
-          - hyprland
-          - hyprpaper
-          - fuzzel
-          - copyq
-          - dunst
-          - alacritty
-          - firefox
-          - playerctl
-          - fcitx5
-          - fcitx5-qt
-          - fcitx5-gtk
-          - fcitx5-rime
-        state: present
-      ignore_errors: true
-      when: ansible_distribution == 'Archlinux'
-    - name: Setup environment variables.
-      become: true
-      ansible.builtin.command:
-        chdir: ~/dotfiles
-        cmd: cp Manual/environment /etc/environment
+    - include_tasks: "{{item}}"
+      loop: "{{ lookup('ansible.builtin.fileglob', 'tasks/environment-variables/*.yaml', wantlist=True) }}"

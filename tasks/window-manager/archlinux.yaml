@@ -1,0 +1,21 @@
+# Setup Hyprland if on Arch Linux
+- name: Setup Window Manager if on Hyprland
+  become: true
+  ansible.builtin.package:
+    name:
+      - hyprland
+      - hyprpaper
+      - fuzzel
+      - copyq
+      - dunst
+      - alacritty
+      - firefox
+      - playerctl
+      - fcitx5
+      - fcitx5-qt
+      - fcitx5-gtk
+      - fcitx5-rime
+    state: present
+  ignore_errors: true
+  when: ansible_distribution == 'Archlinux'
+

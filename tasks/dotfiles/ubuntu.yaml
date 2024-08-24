@@ -1,0 +1,11 @@
+- name: Checkout the latest dotfiles and symlink them.
+  ansible.builtin.git:
+    repo: "https://github.com/pedestrianlove/dotfiles.git"
+    dest: "~/dotfiles"
+    track_submodules: true
+  when: ansible_distribution == 'Ubuntu'
+- name: Setup the dotfiles.
+  ansible.builtin.command: 
+    chdir: ~/dotfiles
+    cmd: stow --adopt .
+  when: ansible_distribution == 'Ubuntu'

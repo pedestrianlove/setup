@@ -1,0 +1,9 @@
+- name: Install tree-sitters
+  become: true
+  ansible.builtin.package:
+    name:
+      - libtree-sitter0
+      - libtree-sitter-dev
+    state: present
+  ignore_errors: true
+  when: ansible_distribution == 'Ubuntu'
